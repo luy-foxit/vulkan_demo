@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="源文件\layer">
+      <UniqueIdentifier>{2812146f-80b2-4028-8c9c-9b61715a2ade}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\layer">
+      <UniqueIdentifier>{b6afce26-ba48-4a1a-bcb8-6a771473be16}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\gpu.cpp">
@@ -27,6 +33,15 @@
     <ClCompile Include="..\..\src\allocator.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\layer\relu_100_vulkan.cpp">
+      <Filter>源文件\layer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pipeline.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\command.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\gpu.h">
@@ -36,6 +51,15 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\allocator.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\layer\relu_100_vulkan.h">
+      <Filter>头文件\layer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\pipeline.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\command.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

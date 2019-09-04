@@ -16,6 +16,7 @@ namespace train {
 		VulkanDevice(int device_index = get_default_gpu_index());
 		~VulkanDevice();
 
+		VkShaderModule get_shader_module(const char* name) const;
 		VkShaderModule compile_shader_module(const uint32_t* spv_data, size_t spv_data_size) const;
 
 	protected:

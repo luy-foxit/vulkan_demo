@@ -1,9 +1,23 @@
 #include <iostream>
+#include <opencv2/opencv.hpp>
 #include "gpu.h"
+#include "layer/relu_100_vulkan.h"
 
 using namespace iml::train;
 
-int main(int argc, char* argv) {
+void gpu_forward(VulkanDevice* vkdev, cv::Mat& mat) {
+	mat.convertTo(mat, CV_32FC3);
+	
+}
+
+int main(int argc, char* argv[]) {
+	if (argc != 2)
+	{
+		fprintf(stderr, "Usage: %s [imagepath]\n", argv[0]);
+		return -1;
+	}
+	const char* image = argv[1];
+	cv::Mat mat = cv::imread(image, cv::IMREAD_COLOR);
 
 	// init vulkan
 	int ret = create_gpu_instance();
@@ -12,8 +26,8 @@ int main(int argc, char* argv) {
 		return ret;
 	}
 
-	VulkanDevice* vkdev = get_gpu_device();
-
+	VulkanDevice* vkdev = get_gpu_device();		//获取vulkan逻辑设备
+	gpu_forward(vkdev, mat);
 
 	// destroy vulkan
 	destroy_gpu_instance();

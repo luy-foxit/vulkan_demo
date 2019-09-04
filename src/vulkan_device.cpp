@@ -17,9 +17,10 @@ namespace train {
 		const uint32_t* spv_data;
 		size_t spv_data_size;
 	};
+	#include "layer/shader_include/layer_shader_spv_data.h"
 	static const layer_shader_registry_entry  layer_shader_registry[] =
 	{
-		{"", nullptr, 0}
+		#include "layer/shader_include/layer_shader_registry.h"
 	};
 	static const int layer_shader_registry_entry_count = sizeof(layer_shader_registry) / sizeof(layer_shader_registry_entry);
 
@@ -181,6 +182,18 @@ namespace train {
 
 	VulkanDevice::~VulkanDevice() {
 
+	}
+
+	VkShaderModule VulkanDevice::get_shader_module(const char* name) const
+	{
+		for (int i = 0; i < layer_shader_registry_entry_count; i++)
+		{
+			if (strcmp(layer_shader_registry[i].name, name) == 0)
+				return shader_modules[i];
+		}
+
+		fprintf(stderr, "no such shader module %s\n", name);
+		return 0;
 	}
 
 	int VulkanDevice::init_device_extension()

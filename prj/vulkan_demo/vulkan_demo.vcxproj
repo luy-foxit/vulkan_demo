@@ -143,13 +143,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\allocator.cpp" />
+    <ClCompile Include="..\..\src\command.cpp" />
     <ClCompile Include="..\..\src\gpu.cpp" />
+    <ClCompile Include="..\..\src\layer\relu_100_vulkan.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
+    <ClCompile Include="..\..\src\pipeline.cpp" />
     <ClCompile Include="..\..\src\vulkan_device.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\allocator.h" />
+    <ClInclude Include="..\..\src\command.h" />
     <ClInclude Include="..\..\src\gpu.h" />
+    <ClInclude Include="..\..\src\layer\relu_100_vulkan.h" />
+    <ClInclude Include="..\..\src\pipeline.h" />
     <ClInclude Include="..\..\src\vulkan_device.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
