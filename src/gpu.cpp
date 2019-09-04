@@ -3,7 +3,6 @@
 #include "vulkan_device.h"
 
 #define ENABLE_VALIDATION_LAYER 0
-#define NCNN_MAX_GPU_COUNT 8
 
 namespace iml {
 namespace train {
@@ -15,7 +14,8 @@ namespace train {
 	static int g_gpu_count = 0;
 	static int g_default_gpu_index = -1;
 
-	static GpuInfo g_gpu_infos[NCNN_MAX_GPU_COUNT];
+	GpuInfo g_gpu_infos[NCNN_MAX_GPU_COUNT];
+	extern VulkanDevice* g_default_vkdev[];
 
 	// VK_KHR_get_physical_device_properties2
 	PFN_vkGetPhysicalDeviceFeatures2KHR vkGetPhysicalDeviceFeatures2KHR = 0;

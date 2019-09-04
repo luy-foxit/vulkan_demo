@@ -3,10 +3,6 @@
 
 using namespace iml::train;
 
-void run_gpu(const char* image) {
-
-}
-
 int main(int argc, char* argv) {
 
 	// init vulkan
@@ -15,6 +11,8 @@ int main(int argc, char* argv) {
 		std::cout << "create_gpu_instance error:" << std::endl;
 		return ret;
 	}
+
+	VulkanDevice* vkdev = get_gpu_device();
 
 
 	// destroy vulkan

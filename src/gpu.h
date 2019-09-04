@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vulkan/vulkan.h>
+#include "vulkan_device.h"
 
 namespace iml {
 namespace train {

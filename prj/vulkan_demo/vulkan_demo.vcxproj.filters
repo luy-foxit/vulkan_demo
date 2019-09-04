@@ -24,12 +24,18 @@
     <ClCompile Include="..\..\src\vulkan_device.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\allocator.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\gpu.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\vulkan_device.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\allocator.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
