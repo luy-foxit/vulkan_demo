@@ -37,21 +37,25 @@ namespace train {
 
 	int Pipeline::create(VkShaderModule shader_module, const char* entry_name, const std::vector<vk_specialization_type>& specializations, int binding_count, int push_constant_count)
 	{
+		// 创建descript layout 到 descriptorset_layout, 作为 pipeline_layout的参数
 		create_descriptorset_layout(binding_count);
 
+		// 创建 pipeline layout 到 pipeline_layout, 作为 pipeline 的参数
 		create_pipeline_layout(push_constant_count);
 
+		// 创建pipeline
 		create_pipeline(shader_module, entry_name, specializations);
 
 		if (vkdev->info.support_VK_KHR_descriptor_update_template)
 		{
+			// 创建描述符更新模板到 descriptor_update_template
 			create_descriptor_update_template(binding_count);
 		}
 
 		return 0;
 	}
 
-	int Pipeline::create(const char* _name, const Option& opt, const std::vector<vk_specialization_type>& specializations, int binding_count, int push_constant_count)
+	int Pipeline::create(const char* _name, const std::vector<vk_specialization_type>& specializations, int binding_count, int push_constant_count)
 	{
 		std::string name = _name;
 
@@ -273,7 +277,9 @@ namespace train {
 		return 0;
 	}
 
-	int Pipeline::create_pipeline(VkShaderModule shader_module, const char* entry_name, const std::vector<vk_specialization_type>& specializations)
+	int Pipeline::create_pipeline(VkShaderModule shader_module, 
+		const char* entry_name, 
+		const std::vector<vk_specialization_type>& specializations)
 	{
 		const int specialization_count = specializations.size();
 
@@ -283,6 +289,7 @@ namespace train {
 
 		for (int i = 0; i < specialization_count; i++)
 		{
+			// constant_id in glsl
 			specializationMapEntries[i].constantID = i;
 			specializationMapEntries[i].offset = i * sizeof(vk_specialization_type);
 			specializationMapEntries[i].size = sizeof(vk_specialization_type);
@@ -294,14 +301,17 @@ namespace train {
 		{
 			VkSpecializationMapEntry* local_size_xyz_entries = specializationMapEntries.data() + specialization_count;
 
+			// local_size_x_id in glsl
 			local_size_xyz_entries[0].constantID = 233;
 			local_size_xyz_entries[0].offset = (specialization_count + 0) * sizeof(vk_specialization_type);
 			local_size_xyz_entries[0].size = sizeof(vk_specialization_type);
 
+			// local_size_y_id in glsl
 			local_size_xyz_entries[1].constantID = 234;
 			local_size_xyz_entries[1].offset = (specialization_count + 1) * sizeof(vk_specialization_type);
 			local_size_xyz_entries[1].size = sizeof(vk_specialization_type);
 
+			// local_size_z_id in glsl
 			local_size_xyz_entries[2].constantID = 235;
 			local_size_xyz_entries[2].offset = (specialization_count + 2) * sizeof(vk_specialization_type);
 			local_size_xyz_entries[2].size = sizeof(vk_specialization_type);
@@ -324,7 +334,8 @@ namespace train {
 		pipelineShaderStageCreateInfo.flags = 0;
 		pipelineShaderStageCreateInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
 		pipelineShaderStageCreateInfo.module = shader_module;
-		pipelineShaderStageCreateInfo.pName = entry_name;
+		//pipelineShaderStageCreateInfo.pName = entry_name;
+		pipelineShaderStageCreateInfo.pName = "main";
 		pipelineShaderStageCreateInfo.pSpecializationInfo = &specializationInfo;
 
 		VkComputePipelineCreateInfo computePipelineCreateInfo;
@@ -336,7 +347,8 @@ namespace train {
 		computePipelineCreateInfo.basePipelineHandle = 0;
 		computePipelineCreateInfo.basePipelineIndex = 0;
 
-		VkResult ret = vkCreateComputePipelines(vkdev->vkdevice(), 0, 1, &computePipelineCreateInfo, 0, &pipeline);
+		VkDevice phy_dev = vkdev->vkdevice();
+		VkResult ret = vkCreateComputePipelines(phy_dev, 0, 1, &computePipelineCreateInfo, 0, &pipeline);
 		if (ret != VK_SUCCESS)
 		{
 			fprintf(stderr, "vkCreateComputePipelines failed %d\n", ret);

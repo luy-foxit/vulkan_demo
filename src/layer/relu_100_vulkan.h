@@ -14,10 +14,10 @@ namespace train {
 		ReLU_vulkan();
 		~ReLU_vulkan();
 
-		int create_pipeline(const Option& opt, const VulkanDevice* vkdev);
-		int destroy_pipeline(const Option& opt);
+		int create_pipeline(const VulkanDevice* vkdev);
+		int destroy_pipeline();
 
-		int forward_inplace(cv::Mat& bottom_top_blob, VkCompute& cmd, const Option& opt) const;
+		int forward_inplace(cv::Mat& bottom_top_blob, VkCompute& cmd) const;
 
 	private:
 		Pipeline* pipeline_relu;

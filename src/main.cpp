@@ -6,8 +6,16 @@
 using namespace iml::train;
 
 void gpu_forward(VulkanDevice* vkdev, cv::Mat& mat) {
+	std::cout << "start run vulkan" << std::endl;
+
 	mat.convertTo(mat, CV_32FC3);
 	
+	ReLU_vulkan relu;
+	int ret = relu.create_pipeline(vkdev);
+	if (ret) {
+		std::cout << "create_pipeline err:" << ret << std::endl;
+		return;
+	}
 }
 
 int main(int argc, char* argv[]) {

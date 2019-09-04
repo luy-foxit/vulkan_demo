@@ -13,20 +13,20 @@ namespace train {
 		pipeline_relu = 0;
 	}
 
-	int ReLU_vulkan::create_pipeline(const Option& opt, const VulkanDevice* vkdev)
+	int ReLU_vulkan::create_pipeline(const VulkanDevice* vkdev)
 	{
-		std::vector<vk_specialization_type> specializations(1);
+		std::vector<vk_specialization_type> specializations;
 		// pack1
 		{
 			pipeline_relu = new Pipeline(vkdev);
 			pipeline_relu->set_optimal_local_size_xyz();
-			pipeline_relu->create("relu_100", opt, specializations, 1, 5);
+			pipeline_relu->create("relu_100", specializations, 1, 5);
 		}
 
 		return 0;
 	}
 
-	int ReLU_vulkan::destroy_pipeline(const Option& opt)
+	int ReLU_vulkan::destroy_pipeline()
 	{
 		delete pipeline_relu;
 		pipeline_relu = 0;
@@ -34,12 +34,14 @@ namespace train {
 		return 0;
 	}
 
-	int ReLU_vulkan::forward_inplace(cv::Mat& bottom_top_blob, VkCompute& cmd, const Option& opt) const
+	int ReLU_vulkan::forward_inplace(cv::Mat& bottom_top_blob, VkCompute& cmd) const
 	{
 #if 0
+		// binding in glsl
 		std::vector<VkMat> bindings(1);
 		bindings[0] = bottom_top_blob;
 
+		// push_constant in glsl
 		std::vector<vk_constant_type> constants(5);
 		constants[0].i = bottom_top_blob.dims;
 		constants[1].i = bottom_top_blob.w;

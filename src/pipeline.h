@@ -11,7 +11,6 @@ namespace train {
 	union vk_specialization_type { int i; float f; uint32_t u32; };
 	union vk_constant_type { int i; float f; };
 
-	class Option;
 	class Pipeline
 	{
 	public:
@@ -26,7 +25,7 @@ namespace train {
 			const std::vector<vk_specialization_type>& specializations, int binding_count, int push_constant_count);
 		int create(VkShaderModule shader_module, const char* entry_name,
 			const std::vector<vk_specialization_type>& specializations, int binding_count, int push_constant_count);
-		int create(const char* name, const Option& opt, const std::vector<vk_specialization_type>& specializations,
+		int create(const char* name, const std::vector<vk_specialization_type>& specializations,
 			int binding_count, int push_constant_count);
 		void destroy();
 
