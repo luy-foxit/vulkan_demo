@@ -4,6 +4,7 @@
 #include "../vulkan_device.h"
 #include "../pipeline.h"
 #include "../command.h"
+#include "../vkmat.h"
 
 namespace iml {
 namespace train {
@@ -17,7 +18,7 @@ namespace train {
 		int create_pipeline(const VulkanDevice* vkdev);
 		int destroy_pipeline();
 
-		int forward_inplace(cv::Mat& bottom_top_blob, VkCompute& cmd) const;
+		int forward_inplace(VkMat& bottom_top_blob, VkCompute& cmd) const;
 
 	private:
 		Pipeline* pipeline_relu;

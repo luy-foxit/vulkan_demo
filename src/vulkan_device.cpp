@@ -297,6 +297,65 @@ namespace train {
 	}
 
 
+	VkAllocator* VulkanDevice::acquire_blob_allocator() const
+	{
+		for (int i = 0; i < (int)blob_allocators.size(); i++)
+		{
+			VkAllocator* allocator = blob_allocators[i];
+			if (allocator)
+			{
+				blob_allocators[i] = 0;
+				return allocator;
+			}
+		}
+
+		// out of blob allocator
+		return 0;
+	}
+
+	void VulkanDevice::reclaim_blob_allocator(VkAllocator* allocator) const
+	{
+		for (int i = 0; i < (int)blob_allocators.size(); i++)
+		{
+			if (!blob_allocators[i])
+			{
+				blob_allocators[i] = allocator;
+				return;
+			}
+		}
+
+		fprintf(stderr, "FATAL ERROR! reclaim_blob_allocator get wild allocator %p\n", allocator);
+	}
+
+	VkAllocator* VulkanDevice::acquire_staging_allocator() const
+	{
+		for (int i = 0; i < (int)staging_allocators.size(); i++)
+		{
+			VkAllocator* allocator = staging_allocators[i];
+			if (allocator)
+			{
+				staging_allocators[i] = 0;
+				return allocator;
+			}
+		}
+
+		// out of staging allocator
+		return 0;
+	}
+
+	void VulkanDevice::reclaim_staging_allocator(VkAllocator* allocator) const
+	{
+		for (int i = 0; i < (int)staging_allocators.size(); i++)
+		{
+			if (!staging_allocators[i])
+			{
+				staging_allocators[i] = allocator;
+				return;
+			}
+		}
+
+		fprintf(stderr, "FATAL ERROR! reclaim_staging_allocator get wild allocator %p\n", allocator);
+	}
 
 	VulkanDevice* get_gpu_device(int device_index)
 	{

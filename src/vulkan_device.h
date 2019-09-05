@@ -19,6 +19,14 @@ namespace train {
 		VkShaderModule get_shader_module(const char* name) const;
 		VkShaderModule compile_shader_module(const uint32_t* spv_data, size_t spv_data_size) const;
 
+		// allocator on this device
+		VkAllocator* acquire_blob_allocator() const;
+		void reclaim_blob_allocator(VkAllocator* allocator) const;
+
+		VkAllocator* acquire_staging_allocator() const;
+		void reclaim_staging_allocator(VkAllocator* allocator) const;
+
+
 	protected:
 		int init_device_extension();
 		int create_shader_module();

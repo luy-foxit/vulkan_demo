@@ -7,11 +7,6 @@
 namespace iml {
 namespace train {
 
-	static inline size_t alignSize(size_t sz, int n)
-	{
-		return (sz + n - 1) & -n;
-	}
-
 	static inline size_t least_common_multiple(size_t a, size_t b)
 	{
 		if (a == b)

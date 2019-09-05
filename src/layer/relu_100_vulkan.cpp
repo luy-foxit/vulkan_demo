@@ -34,9 +34,8 @@ namespace train {
 		return 0;
 	}
 
-	int ReLU_vulkan::forward_inplace(cv::Mat& bottom_top_blob, VkCompute& cmd) const
+	int ReLU_vulkan::forward_inplace(VkMat& bottom_top_blob, VkCompute& cmd) const
 	{
-#if 0
 		// binding in glsl
 		std::vector<VkMat> bindings(1);
 		bindings[0] = bottom_top_blob;
@@ -49,10 +48,10 @@ namespace train {
 		constants[3].i = bottom_top_blob.c;
 		constants[4].i = bottom_top_blob.cstep;
 
-		const Pipeline* pipeline = elempack == 4 ? pipeline_relu_pack4 : pipeline_relu;
+		const Pipeline* pipeline = pipeline_relu;
 
 		cmd.record_pipeline(pipeline, bindings, constants, bottom_top_blob);
-#endif
+
 		return 0;
 	}
 

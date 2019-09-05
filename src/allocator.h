@@ -5,8 +5,44 @@
 #include <iostream>
 #include "vulkan_device.h"
 
+// exchange-add operation for atomic operations on reference counters
+#if defined __INTEL_COMPILER && !(defined WIN32 || defined _WIN32)
+// atomic increment on the linux version of the Intel(tm) compiler
+#  define NCNN_XADD(addr, delta) (int)_InterlockedExchangeAdd(const_cast<void*>(reinterpret_cast<volatile void*>(addr)), delta)
+#elif defined __GNUC__
+#  if defined __clang__ && __clang_major__ >= 3 && !defined __ANDROID__ && !defined __EMSCRIPTEN__ && !defined(__CUDACC__)
+#    ifdef __ATOMIC_ACQ_REL
+#      define NCNN_XADD(addr, delta) __c11_atomic_fetch_add((_Atomic(int)*)(addr), delta, __ATOMIC_ACQ_REL)
+#    else
+#      define NCNN_XADD(addr, delta) __atomic_fetch_add((_Atomic(int)*)(addr), delta, 4)
+#    endif
+#  else
+#    if defined __ATOMIC_ACQ_REL && !defined __clang__
+// version for gcc >= 4.7
+#      define NCNN_XADD(addr, delta) (int)__atomic_fetch_add((unsigned*)(addr), (unsigned)(delta), __ATOMIC_ACQ_REL)
+#    else
+#      define NCNN_XADD(addr, delta) (int)__sync_fetch_and_add((unsigned*)(addr), (unsigned)(delta))
+#    endif
+#  endif
+#elif defined _MSC_VER && !defined RC_INVOKED
+#  include <intrin.h>
+#  define NCNN_XADD(addr, delta) (int)_InterlockedExchangeAdd((long volatile*)addr, delta)
+#else
+// thread-unsafe branch
+static inline int NCNN_XADD(int* addr, int delta) { int tmp = *addr; *addr += delta; return tmp; }
+#endif
+
 namespace iml {
 namespace train {
+
+	// Aligns a buffer size to the specified number of bytes
+	// The function returns the minimum number that is greater or equal to sz and is divisible by n
+	// sz Buffer size to align
+	// n Alignment size that must be a power of two
+	static inline size_t alignSize(size_t sz, int n)
+	{
+		return (sz + n - 1) & -n;
+	}
 
 	class VkBufferMemory
 	{
