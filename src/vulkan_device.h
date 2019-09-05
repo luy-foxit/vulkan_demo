@@ -26,6 +26,8 @@ namespace train {
 		VkAllocator* acquire_staging_allocator() const;
 		void reclaim_staging_allocator(VkAllocator* allocator) const;
 
+		VkQueue acquire_queue(uint32_t queue_family_index) const;
+		void reclaim_queue(uint32_t queue_family_index, VkQueue queue) const;
 
 	protected:
 		int init_device_extension();

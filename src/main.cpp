@@ -11,6 +11,13 @@ void gpu_extract(VulkanDevice* vkdev, cv::Mat& mat) {
 	std::cout << "start run vulkan" << std::endl;
 
 	mat.convertTo(mat, CV_32FC3);
+
+	std::cout << "input data:" << std::endl;
+	float* in_data = (float*)mat.data;
+	for (int i = 0; i < 20; ++i) {
+		std::cout << in_data[i] << " ";
+	}
+	std::cout << std::endl;
 	
 	ReLU_vulkan relu;
 	int ret = relu.create_pipeline(vkdev);
@@ -37,11 +44,34 @@ void gpu_extract(VulkanDevice* vkdev, cv::Mat& mat) {
 	VkCompute cmd(vkdev);
 	VkMat vkmat;
 	vkmat.create_like(mat, opt.blob_vkallocator, opt.staging_vkallocator);
+	vkmat.prepare_staging_buffer();
+	vkmat.upload(mat);	//将cv::mat内容拷贝到vkmat.mapped_ptr()
+	cmd.record_upload(vkmat);
+
 	ret = relu.forward_inplace(vkmat, cmd);
 	if (ret) {
 		std::cout << "relu forward_inplace failed" << std::endl;
 		return;
 	}
+
+	// download data	//必须放到submit_and_wait 之前
+	vkmat.prepare_staging_buffer();
+	cmd.record_download(vkmat);
+
+	cmd.submit_and_wait();		//等待gpu执行完成
+	cmd.reset();
+	
+
+	//vkmat.dowload();	//copy from VkMat::mapped_ptr() 
+	
+	std::cout << "out data:" << std::endl;
+	float* out_data = (float*)vkmat.mapped_ptr();
+	for (int i = 0; i < 20; ++i) {
+		std::cout << out_data[i] << " ";
+	}
+	std::cout << std::endl;
+
+	vkmat.discard_staging_buffer();
 }
 
 int main(int argc, char* argv[]) {

@@ -357,6 +357,53 @@ namespace train {
 		fprintf(stderr, "FATAL ERROR! reclaim_staging_allocator get wild allocator %p\n", allocator);
 	}
 
+
+	VkQueue VulkanDevice::acquire_queue(uint32_t queue_family_index) const
+	{
+		if (queue_family_index != info.compute_queue_family_index && queue_family_index != info.transfer_queue_family_index)
+		{
+			fprintf(stderr, "invalid queue_family_index %u\n", queue_family_index);
+			return 0;
+		}
+
+		std::vector<VkQueue>& queues = queue_family_index == info.compute_queue_family_index ? compute_queues : transfer_queues;
+		for (int i = 0; i < (int)queues.size(); i++)
+		{
+			VkQueue queue = queues[i];
+			if (queue)
+			{
+				queues[i] = 0;
+				return queue;
+			}
+		}
+
+		// out of hardware queue
+		return 0;
+	}
+
+	void VulkanDevice::reclaim_queue(uint32_t queue_family_index, VkQueue queue) const
+	{
+		if (queue_family_index != info.compute_queue_family_index && queue_family_index != info.transfer_queue_family_index)
+		{
+			fprintf(stderr, "invalid queue_family_index %u\n", queue_family_index);
+			return;
+		}
+
+		std::vector<VkQueue>& queues = queue_family_index == info.compute_queue_family_index ? compute_queues : transfer_queues;
+		for (int i = 0; i < (int)queues.size(); i++)
+		{
+			if (!queues[i])
+			{
+				queues[i] = queue;
+				return;
+			}
+		}
+
+		fprintf(stderr, "FATAL ERROR! reclaim_queue get wild queue %u %p\n", queue_family_index, queue);
+	}
+
+
+
 	VulkanDevice* get_gpu_device(int device_index)
 	{
 		if (device_index < 0 || device_index >= get_gpu_count())

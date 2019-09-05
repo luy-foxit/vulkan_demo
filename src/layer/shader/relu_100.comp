@@ -40,7 +40,8 @@ void main()
 
     const int gi = gz * p.cstep + gy * p.w + gx;
 
-    float v = max(bottom_top_blob_data[gi], 100.f);
+    //float v = max(bottom_top_blob_data[gi], 100.f);
+    float v = bottom_top_blob_data[gi] / 2.0f;
 
     bottom_top_blob_data[gi] = v;
 }

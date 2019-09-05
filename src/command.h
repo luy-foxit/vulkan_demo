@@ -28,12 +28,15 @@ namespace train {
 		int begin_command_buffer();
 		int end_command_buffer();
 
+		int queue_submit_and_wait_fence();
+
 	protected:
 		const VulkanDevice* vkdev;
 		uint32_t queue_family_index;
 
 		VkCommandPool command_pool;
 		VkCommandBuffer command_buffer;
+		VkFence fence;
 	};
 
 	// º∆À„√¸¡Ó
@@ -43,8 +46,19 @@ namespace train {
 		VkCompute(const VulkanDevice* vkdev);
 		~VkCompute();
 
+		void record_upload(const VkMat& m);
+
+		void record_download(const VkMat& m);
+
+		void record_clone(const VkMat& src, const VkMat& dst);
+
 		void record_pipeline(const Pipeline* pipeline, const std::vector<VkMat>& bindings, const std::vector<vk_constant_type>& constants, const VkMat& m);
+		int submit_and_wait();
+		int reset();
+
 	protected:
+		void copy_buffer(VkBuffer src, size_t src_offset, VkBuffer dst, size_t dst_offset, size_t size);
+
 		void compute_transfer_barrier(VkBuffer buffer, size_t offset, size_t size);
 		void transfer_compute_barrier(VkBuffer buffer, size_t offset, size_t size);
 		void compute_compute_barrier(VkBuffer buffer, size_t offset, size_t size);
@@ -55,6 +69,8 @@ namespace train {
 		void record_compute_transfer_barrier(const VkMat& m);
 		void record_compute_compute_barrier(const VkMat& m);
 		void record_transfer_transfer_barrier(const VkMat& m);
+
+		void record_prepare_transfer_barrier(const VkMat& m);
 
 		void record_bind_pipeline(VkPipeline pipeline);
 		void record_update_bindings(VkPipelineLayout pipeline_layout, VkDescriptorSetLayout descriptorset_layout, VkDescriptorUpdateTemplateKHR descriptor_update_template, const std::vector<VkMat>& bindings);
