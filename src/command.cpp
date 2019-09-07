@@ -694,12 +694,111 @@ namespace train {
 
 	VkTransfer::VkTransfer(const VulkanDevice* _vkdev) : Command(_vkdev, _vkdev->info.transfer_queue_family_index)
 	{
-		
+		buffer_offset_alignment = vkdev->info.buffer_offset_alignment;
+		staging_data = 0;
 	}
 
 	VkTransfer::~VkTransfer()
 	{
 	}
+
+	void VkTransfer::record_upload(std::vector<float>& src, VkMat& dst) {
+		dst.create(src.size(), sizeof(float), weight_vkallocator, staging_vkallocator);
+		
+		// set weight blob as readonly
+		dst.data->state = 4;
+		if (dst.allocator->mappable)
+		{
+			//dst.upload(src);
+			return;
+		}
+
+		record_type r;
+		//r.size = src_flattened.total() * src_flattened.elemsize;
+		r.size = src.size() * sizeof(float);
+		r.cpu_data = src;
+		r.vkmat = dst;
+		delayed_records.push_back(r);
+	}
+
+	int VkTransfer::submit_and_wait()
+	{
+		if (delayed_records.empty())
+			return 0;
+
+		int transfer_count = delayed_records.size();
+
+		// solve staging buffer size
+		size_t staging_buffer_size = 0;
+		for (int i = 0; i < transfer_count; i++)
+		{
+			const record_type& r = delayed_records[i];
+			staging_buffer_size += alignSize(r.size, buffer_offset_alignment);
+		}
+
+		// allocate staging buffer
+		staging_data = staging_vkallocator->fastMalloc(staging_buffer_size);
+
+		// copy upload data
+		size_t mapped_ptr_offset = 0;
+		for (int i = 0; i < transfer_count; i++)
+		{
+			const record_type& r = delayed_records[i];
+
+			memcpy((unsigned char*)staging_data->mapped_ptr + mapped_ptr_offset, r.cpu_data.data(), r.size);
+
+			mapped_ptr_offset += alignSize(r.size, buffer_offset_alignment);
+		}
+
+		begin_command_buffer();
+
+		//     fprintf(stderr, "cmd transfer %p %lu\n", staging_data->buffer, staging_buffer_size);
+
+			// handle delayed records
+		size_t staging_buffer_offset = 0;
+		for (int i = 0; i < transfer_count; i++)
+		{
+			const record_type& r = delayed_records[i];
+
+			copy_buffer(staging_data->buffer, staging_buffer_offset, r.vkmat.buffer(), r.vkmat.buffer_offset(), r.size);
+
+			staging_buffer_offset += alignSize(r.size, buffer_offset_alignment);
+		}
+
+		end_command_buffer();
+
+		int ret = queue_submit_and_wait_fence();
+
+		// deallocate staging buffer
+		staging_vkallocator->fastFree(staging_data);
+		staging_data = 0;
+
+		delayed_records.clear();
+
+		return ret;
+	}
+
+
+	void VkTransfer::copy_buffer(VkBuffer src, size_t src_offset, VkBuffer dst, size_t dst_offset, size_t size)
+	{
+		//     fprintf(stderr, "cmd copy %p to %p\n", src, dst);
+
+		VkBufferCopy region;
+		region.srcOffset = src_offset;
+		region.dstOffset = dst_offset;
+		region.size = size;
+
+		vkCmdCopyBuffer(command_buffer, src, dst, 1, &region);
+	}
+
+	void VkTransfer::copy_buffer_regions(VkBuffer src, VkBuffer dst, const std::vector<VkBufferCopy>& regions)
+	{
+		//     fprintf(stderr, "cmd copy regions %p to %p\n", src, dst);
+
+		vkCmdCopyBuffer(command_buffer, src, dst, regions.size(), regions.data());
+	}
+
+
 
 }
 } // namespace ncnn

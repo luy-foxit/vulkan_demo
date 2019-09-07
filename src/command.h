@@ -128,6 +128,29 @@ namespace train {
 	public:
 		VkTransfer(const VulkanDevice* vkdev);
 		~VkTransfer();
+
+		void record_upload(std::vector<float>& src, VkMat& dst);
+		int submit_and_wait();
+
+	protected:
+		void copy_buffer(VkBuffer src, size_t src_offset, VkBuffer dst, size_t dst_offset, size_t size);
+		void copy_buffer_regions(VkBuffer src, VkBuffer dst, const std::vector<VkBufferCopy>& regions);
+
+	public:
+		VkAllocator* weight_vkallocator;
+		VkAllocator* staging_vkallocator;
+
+	protected:
+		size_t buffer_offset_alignment;
+		VkBufferMemory* staging_data;
+
+		struct record_type
+		{
+			size_t size;
+			std::vector<float>	cpu_data;
+			VkMat vkmat;
+		};
+		std::vector<record_type> delayed_records;
 	};
 
 }

@@ -135,6 +135,44 @@ namespace train {
 		std::list<VkBufferMemory*> budgets;
 	};
 
+	class VkWeightBufferAllocator : public VkAllocator
+	{
+	public:
+		VkWeightBufferAllocator(const VulkanDevice* vkdev);
+		virtual ~VkWeightBufferAllocator();
+
+	public:
+		// buffer block size, default=8M
+		void set_block_size(size_t block_size);
+
+		// release all blocks immediately
+		virtual void clear();
+
+	public:
+		virtual VkBufferMemory* fastMalloc(size_t size);
+		virtual void fastFree(VkBufferMemory* ptr);
+
+	private:
+		size_t block_size;
+		size_t buffer_offset_alignment;
+		std::vector<size_t> buffer_block_free_spaces;
+		std::vector<VkBufferMemory*> buffer_blocks;
+		std::vector<VkBufferMemory*> dedicated_buffer_blocks;
+	};
+
+	class VkWeightStagingBufferAllocator : public VkAllocator
+	{
+	public:
+		VkWeightStagingBufferAllocator(const VulkanDevice* vkdev);
+		virtual ~VkWeightStagingBufferAllocator();
+
+	public:
+		virtual VkBufferMemory* fastMalloc(size_t size);
+		virtual void fastFree(VkBufferMemory* ptr);
+
+	private:
+		uint32_t memory_type_index;
+	};
 
 }
 }

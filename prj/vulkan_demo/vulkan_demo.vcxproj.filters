@@ -48,6 +48,9 @@
     <ClCompile Include="..\..\src\layer\resize_vulkan.cpp">
       <Filter>源文件\layer</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\layer\convolution_vulkan.cpp">
+      <Filter>源文件\layer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\gpu.h">
@@ -75,6 +78,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\layer\resize_vulkan.h">
+      <Filter>头文件\layer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\layer\convolution_vulkan.h">
       <Filter>头文件\layer</Filter>
     </ClInclude>
   </ItemGroup>

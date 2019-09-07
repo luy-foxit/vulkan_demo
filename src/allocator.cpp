@@ -418,5 +418,249 @@ namespace train {
 	}
 
 
+	VkWeightBufferAllocator::VkWeightBufferAllocator(const VulkanDevice* _vkdev) : VkAllocator(_vkdev)
+	{
+		mappable = vkdev->info.device_local_memory_index == vkdev->info.unified_memory_index;
+
+		buffer_offset_alignment = vkdev->info.buffer_offset_alignment;
+
+		if (mappable)
+		{
+			// least common multiple for memory_map_alignment and buffer_offset_alignment
+			size_t memory_map_alignment = vkdev->info.memory_map_alignment;
+			buffer_offset_alignment = least_common_multiple(buffer_offset_alignment, memory_map_alignment);
+		}
+
+		block_size = alignSize(8 * 1024 * 1024, buffer_offset_alignment);// 8M
+	}
+
+	VkWeightBufferAllocator::~VkWeightBufferAllocator()
+	{
+		clear();
+	}
+
+	void VkWeightBufferAllocator::set_block_size(size_t _block_size)
+	{
+		block_size = _block_size;
+	}
+
+	void VkWeightBufferAllocator::clear()
+	{
+		//     fprintf(stderr, "VkWeightBufferAllocator %lu %lu\n", buffer_blocks.size(), dedicated_buffer_blocks.size());
+
+		buffer_block_free_spaces.clear();
+
+		for (size_t i = 0; i < buffer_blocks.size(); i++)
+		{
+			VkBufferMemory* ptr = buffer_blocks[i];
+
+			if (mappable)
+				vkUnmapMemory(vkdev->vkdevice(), ptr->memory);
+
+			vkDestroyBuffer(vkdev->vkdevice(), ptr->buffer, 0);
+			vkFreeMemory(vkdev->vkdevice(), ptr->memory, 0);
+
+			delete ptr;
+		}
+		buffer_blocks.clear();
+
+		for (size_t i = 0; i < dedicated_buffer_blocks.size(); i++)
+		{
+			VkBufferMemory* ptr = dedicated_buffer_blocks[i];
+
+			if (mappable)
+				vkUnmapMemory(vkdev->vkdevice(), ptr->memory);
+
+			vkDestroyBuffer(vkdev->vkdevice(), ptr->buffer, 0);
+			vkFreeMemory(vkdev->vkdevice(), ptr->memory, 0);
+
+			delete ptr;
+		}
+		dedicated_buffer_blocks.clear();
+	}
+
+	VkBufferMemory* VkWeightBufferAllocator::fastMalloc(size_t size)
+	{
+		//     fprintf(stderr, "VkWeightBufferAllocator fastMalloc %lu\n", size);
+
+		size_t aligned_size = alignSize(size, buffer_offset_alignment);
+
+		const int buffer_block_count = buffer_blocks.size();
+
+		// find first spare space in buffer_blocks
+		int block_index = -1;
+		size_t block_offset = 0;
+		for (int i = 0; i < buffer_block_count; i++)
+		{
+			size_t free_size = buffer_block_free_spaces[i];
+			if (free_size >= aligned_size)
+			{
+				block_index = i;
+				block_offset = block_size - free_size;
+				break;
+			}
+		}
+
+		if (block_index != -1)
+		{
+			// return sub buffer
+			VkBufferMemory* ptr = new VkBufferMemory;
+
+			ptr->buffer = buffer_blocks[block_index]->buffer;
+			ptr->offset = block_offset;
+			ptr->memory = buffer_blocks[block_index]->memory;
+			ptr->capacity = aligned_size;
+			ptr->mapped_ptr = buffer_blocks[block_index]->mapped_ptr;
+			ptr->state = 1;
+
+			buffer_block_free_spaces[block_index] -= aligned_size;
+
+			return ptr;
+		}
+
+		size_t new_block_size = std::max(block_size, aligned_size);
+
+		// create new block
+		VkBufferMemory* block = new VkBufferMemory;
+
+		block->buffer = create_buffer(new_block_size, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT);
+		block->offset = 0;
+
+		if (vkdev->info.support_VK_KHR_get_memory_requirements2 && vkdev->info.support_VK_KHR_dedicated_allocation)
+		{
+			VkBufferMemoryRequirementsInfo2KHR bufferMemoryRequirementsInfo2;
+			bufferMemoryRequirementsInfo2.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_REQUIREMENTS_INFO_2_KHR;
+			bufferMemoryRequirementsInfo2.pNext = 0;
+			bufferMemoryRequirementsInfo2.buffer = block->buffer;
+
+			VkMemoryRequirements2KHR memoryRequirements2;
+			memoryRequirements2.sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2_KHR;
+			memoryRequirements2.pNext = 0;
+
+			VkMemoryDedicatedRequirementsKHR memoryDedicatedRequirements;
+			memoryDedicatedRequirements.sType = VK_STRUCTURE_TYPE_MEMORY_DEDICATED_REQUIREMENTS_KHR;
+			memoryDedicatedRequirements.pNext = 0;
+			memoryRequirements2.pNext = &memoryDedicatedRequirements;
+
+			vkdev->vkGetBufferMemoryRequirements2KHR(vkdev->vkdevice(), &bufferMemoryRequirementsInfo2, &memoryRequirements2);
+
+			bool dedicatedAllocation = memoryDedicatedRequirements.requiresDedicatedAllocation || memoryDedicatedRequirements.prefersDedicatedAllocation;
+
+			if (dedicatedAllocation)
+			{
+				block->memory = allocate_dedicated_memory(memoryRequirements2.memoryRequirements.size, vkdev->info.device_local_memory_index, block->buffer);
+
+				vkBindBufferMemory(vkdev->vkdevice(), block->buffer, block->memory, 0);
+
+				block->mapped_ptr = 0;
+				if (mappable)
+				{
+					vkMapMemory(vkdev->vkdevice(), block->memory, 0, new_block_size, 0, &block->mapped_ptr);
+				}
+
+				dedicated_buffer_blocks.push_back(block);
+
+				// return sub buffer
+				VkBufferMemory* ptr = new VkBufferMemory;
+
+				ptr->buffer = block->buffer;
+				ptr->offset = 0;
+				ptr->memory = block->memory;
+				ptr->capacity = new_block_size;
+				ptr->mapped_ptr = block->mapped_ptr;
+				ptr->state = 1;
+
+				return ptr;
+			}
+		}
+
+		VkMemoryRequirements memoryRequirements;
+		vkGetBufferMemoryRequirements(vkdev->vkdevice(), block->buffer, &memoryRequirements);
+
+		block->memory = allocate_memory(memoryRequirements.size, vkdev->info.device_local_memory_index);
+
+		vkBindBufferMemory(vkdev->vkdevice(), block->buffer, block->memory, 0);
+
+		//     fprintf(stderr, "VkWeightBufferAllocator M %p\n", block->buffer);
+
+		block->mapped_ptr = 0;
+		if (mappable)
+		{
+			vkMapMemory(vkdev->vkdevice(), block->memory, 0, new_block_size, 0, &block->mapped_ptr);
+		}
+
+		buffer_blocks.push_back(block);
+
+		buffer_block_free_spaces.push_back(new_block_size - aligned_size);
+
+		// return sub buffer
+		VkBufferMemory* ptr = new VkBufferMemory;
+
+		ptr->buffer = block->buffer;
+		ptr->offset = 0;
+		ptr->memory = block->memory;
+		ptr->capacity = aligned_size;
+		ptr->mapped_ptr = block->mapped_ptr;
+		ptr->state = 1;
+
+		return ptr;
+	}
+
+	void VkWeightBufferAllocator::fastFree(VkBufferMemory* ptr)
+	{
+		//     fprintf(stderr, "VkWeightBufferAllocator F %p\n", ptr->buffer);
+
+		delete ptr;
+	}
+
+
+	VkWeightStagingBufferAllocator::VkWeightStagingBufferAllocator(const VulkanDevice* _vkdev) : VkAllocator(_vkdev)
+	{
+		mappable = true;
+
+		memory_type_index = vkdev->info.host_visible_memory_index;
+	}
+
+	VkWeightStagingBufferAllocator::~VkWeightStagingBufferAllocator()
+	{
+	}
+
+	VkBufferMemory* VkWeightStagingBufferAllocator::fastMalloc(size_t size)
+	{
+		VkBufferMemory* ptr = new VkBufferMemory;
+
+		ptr->buffer = create_buffer(size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT);
+		ptr->offset = 0;
+
+		VkMemoryRequirements memoryRequirements;
+		vkGetBufferMemoryRequirements(vkdev->vkdevice(), ptr->buffer, &memoryRequirements);
+
+		ptr->memory = allocate_memory(memoryRequirements.size, memory_type_index);
+
+		vkBindBufferMemory(vkdev->vkdevice(), ptr->buffer, ptr->memory, 0);
+
+		ptr->capacity = size;
+
+		vkMapMemory(vkdev->vkdevice(), ptr->memory, 0, size, 0, &ptr->mapped_ptr);
+
+		ptr->state = 1;
+
+		//     fprintf(stderr, "VkWeightStagingBufferAllocator M %p %lu\n", ptr->buffer, size);
+
+		return ptr;
+	}
+
+	void VkWeightStagingBufferAllocator::fastFree(VkBufferMemory* ptr)
+	{
+		//     fprintf(stderr, "VkWeightStagingBufferAllocator F %p\n", ptr->buffer);
+
+		vkUnmapMemory(vkdev->vkdevice(), ptr->memory);
+		vkDestroyBuffer(vkdev->vkdevice(), ptr->buffer, 0);
+		vkFreeMemory(vkdev->vkdevice(), ptr->memory, 0);
+
+		delete ptr;
+	}
+
+
 }
 } // namespace ncnn
