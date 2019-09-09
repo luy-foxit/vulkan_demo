@@ -53,9 +53,9 @@ namespace train {
 		uint32_t compute_queue_count;
 		uint32_t transfer_queue_count;
 
-		uint32_t unified_memory_index;
-		uint32_t device_local_memory_index;
-		uint32_t host_visible_memory_index;
+		uint32_t unified_memory_index;		//gpu可访问且可以被主内存映射
+		uint32_t device_local_memory_index;	//gpu可访问
+		uint32_t host_visible_memory_index;	//主内存可映射，gpu不可访问
 
 		// fp16 and int8 feature
 		bool support_fp16_packed;

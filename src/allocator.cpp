@@ -42,6 +42,7 @@ namespace train {
 		bufferCreateInfo.pQueueFamilyIndices = 0;
 
 		VkBuffer buffer;
+		// 创建缓冲, 缓冲创建后实际还没有给它分配任何内存.
 		VkResult ret = vkCreateBuffer(vkdev->vkdevice(), &bufferCreateInfo, 0, &buffer);
 		if (ret != VK_SUCCESS)
 		{
@@ -207,9 +208,12 @@ namespace train {
 
 		// TODO respect VK_KHR_dedicated_allocation ?
 
+		//缓冲创建后实际还没有给它分配任何内存。分配缓冲内存前，我们需
+		//要调用vkGetBufferMemoryRequirements 函数获取缓冲的内存需求。
 		VkMemoryRequirements memoryRequirements;
 		vkGetBufferMemoryRequirements(vkdev->vkdevice(), block->buffer, &memoryRequirements);
 
+		// vkAllocateMemory
 		block->memory = allocate_memory(memoryRequirements.size, vkdev->info.device_local_memory_index);
 
 		vkBindBufferMemory(vkdev->vkdevice(), block->buffer, block->memory, 0);

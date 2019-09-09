@@ -193,6 +193,7 @@ namespace train {
 		local_size_z = c;
 	}
 
+	// 创建描述符集布局
 	int Pipeline::create_descriptorset_layout(int binding_count)
 	{
 		if (binding_count == 0)
@@ -201,6 +202,7 @@ namespace train {
 			return 0;
 		}
 
+		//配置glsl中的binding
 		std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings(binding_count);
 		for (int i = 0; i < binding_count; i++)
 		{
