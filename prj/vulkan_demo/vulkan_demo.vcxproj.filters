@@ -33,9 +33,6 @@
     <ClCompile Include="..\..\src\allocator.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\layer\relu_100_vulkan.cpp">
-      <Filter>源文件\layer</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\pipeline.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -49,6 +46,9 @@
       <Filter>源文件\layer</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\layer\convolution_vulkan.cpp">
+      <Filter>源文件\layer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\layer\divide_vulkan.cpp">
       <Filter>源文件\layer</Filter>
     </ClCompile>
   </ItemGroup>

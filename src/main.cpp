@@ -3,13 +3,13 @@
 #include "gpu.h"
 #include "vkmat.h"
 #include "option.h"
-#include "layer/relu_100_vulkan.h"
+#include "layer/divide_vulkan.h"
 #include "layer/resize_vulkan.h"
 #include "layer/convolution_vulkan.h"
 
 using namespace iml::train;
 
-void relu_forward(VulkanDevice* vkdev, Option& opt, cv::Mat& mat) {
+void divide_forward(VulkanDevice* vkdev, Option& opt, cv::Mat& mat) {
 
 	std::cout << "input data:" << std::endl;
 	float* in_data = (float*)mat.data;
@@ -18,14 +18,12 @@ void relu_forward(VulkanDevice* vkdev, Option& opt, cv::Mat& mat) {
 	}
 	std::cout << std::endl;
 
-	ReLU_vulkan relu;
-	int ret = relu.create_pipeline(vkdev);
+	Divide_vulkan div(2.5f);
+	int ret = div.create_pipeline(vkdev);
 	if (ret) {
 		std::cout << "create_pipeline err:" << ret << std::endl;
 		return;
 	}
-
-	//--TODO: 将weight, bias 拷贝到显存, relu不需要
 
 	VkCompute cmd(vkdev);
 	VkMat vkmat;
@@ -34,9 +32,9 @@ void relu_forward(VulkanDevice* vkdev, Option& opt, cv::Mat& mat) {
 	vkmat.upload(mat);	//将cv::mat内容拷贝到vkmat.mapped_ptr()
 	cmd.record_upload(vkmat);
 
-	ret = relu.forward_inplace(vkmat, cmd);
+	ret = div.forward_inplace(vkmat, cmd);
 	if (ret) {
-		std::cout << "relu forward_inplace failed" << std::endl;
+		std::cout << "div forward_inplace failed" << std::endl;
 		return;
 	}
 
@@ -81,17 +79,19 @@ void resize_forward(VulkanDevice* vkdev, Option& opt, cv::Mat& mat) {
 	out_vkmat.create_like(outmat, opt.blob_vkallocator, opt.staging_vkallocator);
 	ret = resize.forward(vkmat, out_vkmat, cmd);
 	if (ret) {
-		std::cout << "relu forward_inplace failed" << std::endl;
+		std::cout << "divide forward_inplace failed" << std::endl;
 		return;
 	}
 
-	// download data	//必须放到submit_and_wait 之前
-	out_vkmat.prepare_staging_buffer();
-	cmd.record_download(out_vkmat);
-
 	cmd.submit_and_wait();		//等待gpu执行完成
-	cmd.reset();
+	cmd.reset();		//重置并且重新开始command
 
+	VkCompute cmd2(vkdev);
+	out_vkmat.prepare_staging_buffer();
+	cmd2.record_download(out_vkmat);
+
+	cmd2.submit_and_wait();
+	cmd2.reset();
 
 	out_vkmat.download(outmat);
 
@@ -187,7 +187,7 @@ void gpu_extract(VulkanDevice* vkdev, cv::Mat& mat) {
 		opt.staging_vkallocator = local_staging_allocator;
 	}
 
-	//relu_forward(vkdev, opt, mat);
+	//divide_forward(vkdev, opt, mat);
 	//resize_forward(vkdev, opt, mat);
 	conv_forward(vkdev, opt, mat);
 

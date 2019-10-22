@@ -1,5 +1,8 @@
 #include "gpu.h"
+#include <iostream>
 #include <vector>
+#include <stdio.h>
+#include <string.h>
 #include "vulkan_device.h"
 
 #define ENABLE_VALIDATION_LAYER 0

@@ -1,6 +1,9 @@
 #include "vulkan_device.h"
 #include "gpu.h"
 #include <vector>
+#include <iostream>
+#include <stdio.h>
+#include <string.h>
 #include "allocator.h"
 
 namespace iml {
@@ -17,10 +20,10 @@ namespace train {
 		const uint32_t* spv_data;
 		size_t spv_data_size;
 	};
-	#include "layer/shader_include/layer_shader_spv_data.h"
+	#include "layer_shader_spv_data.h"
 	static const layer_shader_registry_entry  layer_shader_registry[] =
 	{
-		#include "layer/shader_include/layer_shader_registry.h"
+		#include "layer_shader_registry.h"
 	};
 	static const int layer_shader_registry_entry_count = sizeof(layer_shader_registry) / sizeof(layer_shader_registry_entry);
 
