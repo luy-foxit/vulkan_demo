@@ -26,19 +26,19 @@ namespace train {
 		destroy();
 	}
 
-	int Pipeline::create(const uint32_t* spv_data, size_t spv_data_size, const char* entry_name, const std::vector<vk_specialization_type>& specializations, int binding_count, int push_constant_count)
+	int Pipeline::create(const uint32_t* spv_data, size_t spv_data_size, const char* entry_name, const std::vector<vk_specialization_type>& specializations, const std::vector<VkDescriptorType>& bufferTypes, int push_constant_count)
 	{
 		local_shader_module = vkdev->compile_shader_module(spv_data, spv_data_size);
 
 		//     fprintf(stderr, "local_shader_module %p %s created\n", local_shader_module, entry_name);
 
-		return create(local_shader_module, entry_name, specializations, binding_count, push_constant_count);
+		return create(local_shader_module, entry_name, specializations, bufferTypes, push_constant_count);
 	}
 
-	int Pipeline::create(VkShaderModule shader_module, const char* entry_name, const std::vector<vk_specialization_type>& specializations, int binding_count, int push_constant_count)
+	int Pipeline::create(VkShaderModule shader_module, const char* entry_name, const std::vector<vk_specialization_type>& specializations, const std::vector<VkDescriptorType>& bufferTypes, int push_constant_count)
 	{
 		// 创建descript layout 到 descriptorset_layout, 作为 pipeline_layout的参数
-		create_descriptorset_layout(binding_count);
+		create_descriptorset_layout(bufferTypes);
 
 		// 创建 pipeline layout 到 pipeline_layout, 作为 pipeline 的参数
 		create_pipeline_layout(push_constant_count);
@@ -49,19 +49,19 @@ namespace train {
 		if (vkdev->info.support_VK_KHR_descriptor_update_template)
 		{
 			// 创建描述符更新模板到 descriptor_update_template
-			create_descriptor_update_template(binding_count);
+			create_descriptor_update_template(bufferTypes);
 		}
 
 		return 0;
 	}
 
-	int Pipeline::create(const char* _name, const std::vector<vk_specialization_type>& specializations, int binding_count, int push_constant_count)
+	int Pipeline::create(const char* _name, const std::vector<vk_specialization_type>& specializations, const std::vector<VkDescriptorType>& bufferTypes, int push_constant_count)
 	{
 		std::string name = _name;
 
 		VkShaderModule shader_module = vkdev->get_shader_module(name.c_str());
 
-		return create(shader_module, name.c_str(), specializations, binding_count, push_constant_count);
+		return create(shader_module, name.c_str(), specializations, bufferTypes, push_constant_count);
 	}
 
 	void Pipeline::destroy()
@@ -194,8 +194,9 @@ namespace train {
 	}
 
 	// 创建描述符集布局
-	int Pipeline::create_descriptorset_layout(int binding_count)
+	int Pipeline::create_descriptorset_layout(const std::vector<VkDescriptorType>& bufferTypes)
 	{
+		int binding_count = bufferTypes.size();
 		if (binding_count == 0)
 		{
 			descriptorset_layout = 0;
@@ -206,8 +207,9 @@ namespace train {
 		std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings(binding_count);
 		for (int i = 0; i < binding_count; i++)
 		{
+			auto type = bufferTypes[i];
 			descriptorSetLayoutBindings[i].binding = i;
-			descriptorSetLayoutBindings[i].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			descriptorSetLayoutBindings[i].descriptorType = type; //VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			descriptorSetLayoutBindings[i].descriptorCount = 1;
 			descriptorSetLayoutBindings[i].stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 			descriptorSetLayoutBindings[i].pImmutableSamplers = 0;
@@ -279,8 +281,8 @@ namespace train {
 		return 0;
 	}
 
-	int Pipeline::create_pipeline(VkShaderModule shader_module, 
-		const char* entry_name, 
+	int Pipeline::create_pipeline(VkShaderModule shader_module,
+		const char* entry_name,
 		const std::vector<vk_specialization_type>& specializations)
 	{
 		const int specialization_count = specializations.size();
@@ -360,8 +362,31 @@ namespace train {
 		return 0;
 	}
 
-	int Pipeline::create_descriptor_update_template(int binding_count)
+	static inline size_t descripterTypeToStride(VkDescriptorType type) {
+		size_t stride = 0;
+		switch (type) {
+		case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+		case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+		case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+		{
+			stride = sizeof(VkDescriptorImageInfo);
+			break;
+		}
+		case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+		case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+		case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+		case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+		{
+			stride = sizeof(VkDescriptorBufferInfo);
+			break;
+		}
+		}
+		return stride;
+	}
+
+	int Pipeline::create_descriptor_update_template(const std::vector<VkDescriptorType>& bufferTypes)
 	{
+		int binding_count = bufferTypes.size();
 		if (binding_count == 0)
 		{
 			descriptor_update_template = 0;
@@ -369,14 +394,18 @@ namespace train {
 		}
 
 		std::vector<VkDescriptorUpdateTemplateEntryKHR> descriptorUpdateTemplateEntries(binding_count);
+        size_t offset = 0;
 		for (int i = 0; i < binding_count; i++)// TODO do not update weights
 		{
+			auto type = bufferTypes[i];
+			size_t stride = descripterTypeToStride(type);
 			descriptorUpdateTemplateEntries[i].dstBinding = i;
 			descriptorUpdateTemplateEntries[i].dstArrayElement = 0;
 			descriptorUpdateTemplateEntries[i].descriptorCount = 1;
-			descriptorUpdateTemplateEntries[i].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-			descriptorUpdateTemplateEntries[i].offset = i * sizeof(VkDescriptorBufferInfo);
-			descriptorUpdateTemplateEntries[i].stride = sizeof(VkDescriptorBufferInfo);
+			descriptorUpdateTemplateEntries[i].descriptorType = type; //VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			descriptorUpdateTemplateEntries[i].offset = offset; //i * sizeof(VkDescriptorBufferInfo);
+			descriptorUpdateTemplateEntries[i].stride = stride; //sizeof(VkDescriptorBufferInfo);
+            offset += stride;
 		}
 
 		VkDescriptorUpdateTemplateCreateInfoKHR descriptorUpdateTemplateCreateInfo;

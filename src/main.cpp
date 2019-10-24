@@ -187,9 +187,9 @@ void gpu_extract(VulkanDevice* vkdev, cv::Mat& mat) {
 		opt.staging_vkallocator = local_staging_allocator;
 	}
 
-	//divide_forward(vkdev, opt, mat);
+	divide_forward(vkdev, opt, mat);
 	//resize_forward(vkdev, opt, mat);
-	conv_forward(vkdev, opt, mat);
+	//conv_forward(vkdev, opt, mat);
 
 
 	if (local_blob_allocator)

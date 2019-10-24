@@ -448,6 +448,7 @@ namespace train {
 		VkDescriptorPool descriptor_pool;
 		{
 			VkDescriptorPoolSize poolSize;
+			//--TODO:
 			poolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			poolSize.descriptorCount = binding_count;
 

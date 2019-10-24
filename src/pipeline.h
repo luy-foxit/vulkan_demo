@@ -22,18 +22,18 @@ namespace train {
 		void set_local_size_xyz(int w, int h, int c);
 
 		int create(const uint32_t* spv_data, size_t spv_data_size, const char* entry_name,
-			const std::vector<vk_specialization_type>& specializations, int binding_count, int push_constant_count);
+			const std::vector<vk_specialization_type>& specializations, const std::vector<VkDescriptorType>& bufferTypes, int push_constant_count);
 		int create(VkShaderModule shader_module, const char* entry_name,
-			const std::vector<vk_specialization_type>& specializations, int binding_count, int push_constant_count);
+			const std::vector<vk_specialization_type>& specializations, const std::vector<VkDescriptorType>& bufferTypes, int push_constant_count);
 		int create(const char* name, const std::vector<vk_specialization_type>& specializations,
-			int binding_count, int push_constant_count);
+			const std::vector<VkDescriptorType>& bufferTypes, int push_constant_count);
 		void destroy();
 
 	protected:
-		int create_descriptorset_layout(int binding_count);
+		int create_descriptorset_layout(const std::vector<VkDescriptorType>& bufferTypes);
 		int create_pipeline_layout(int push_constant_count);
 		int create_pipeline(VkShaderModule shader_module, const char* entry_name, const std::vector<vk_specialization_type>& specializations);
-		int create_descriptor_update_template(int binding_count);
+		int create_descriptor_update_template(const std::vector<VkDescriptorType>& bufferTypes);
 
 	public:
 		const VulkanDevice* vkdev;

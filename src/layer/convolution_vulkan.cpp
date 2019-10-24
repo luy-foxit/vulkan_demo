@@ -22,12 +22,18 @@ namespace train {
 		specializations[2].i = 1;		//bias_term in glsl
 
 		{
-			int binding_count = 3;	//glsl中binding数量
+			//glsl中binding
+			std::vector<VkDescriptorType> bufferTypes = {
+				VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+				VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 
+				VK_DESCRIPTOR_TYPE_STORAGE_BUFFER 
+			};
+
 			int push_constant_count = 5;	//glsl中push_constant参数数量
 
 			pipeline_convolution = new Pipeline(vkdev);
 			pipeline_convolution->set_optimal_local_size_xyz();
-			pipeline_convolution->create("convolution", specializations, binding_count, push_constant_count);
+			pipeline_convolution->create("convolution", specializations, bufferTypes, push_constant_count);
 		}
 
 		return 0;

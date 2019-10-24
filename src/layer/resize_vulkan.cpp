@@ -19,12 +19,17 @@ namespace train {
 		specializations[0].i = 0;
 		// pack1
 		{
+			//glsl中binding
+			std::vector<VkDescriptorType> bufferTypes = {
+				VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+				VK_DESCRIPTOR_TYPE_STORAGE_BUFFER
+			};
 			int binding_count = 2;	//glsl中binding数量
 			int push_constant_count = 10;	//glsl中push_constant参数数量
 
 			pipeline_resize = new Pipeline(vkdev);
 			pipeline_resize->set_optimal_local_size_xyz();
-			pipeline_resize->create("resize", specializations, binding_count, push_constant_count);
+			pipeline_resize->create("resize", specializations, bufferTypes, push_constant_count);
 		}
 
 		return 0;

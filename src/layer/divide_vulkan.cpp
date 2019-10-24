@@ -19,9 +19,13 @@ namespace train {
 		specializations[0].f = _div_num;
 		// pack1
 		{
+			//glsl÷–binding
+			std::vector<VkDescriptorType> bufferTypes = {
+				VK_DESCRIPTOR_TYPE_STORAGE_BUFFER
+			};
 			pipeline_relu = new Pipeline(vkdev);
 			pipeline_relu->set_optimal_local_size_xyz();
-			pipeline_relu->create("divide", specializations, 1, 5);
+			pipeline_relu->create("divide", specializations, bufferTypes, 5);
 		}
 
 		return 0;
