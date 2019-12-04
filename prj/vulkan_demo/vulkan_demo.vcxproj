@@ -147,6 +147,7 @@
     <ClCompile Include="..\..\src\gpu.cpp" />
     <ClCompile Include="..\..\src\layer\convolution_vulkan.cpp" />
     <ClCompile Include="..\..\src\layer\divide_vulkan.cpp" />
+    <ClCompile Include="..\..\src\layer\image_conv_vulkan.cpp" />
     <ClCompile Include="..\..\src\layer\resize_vulkan.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
     <ClCompile Include="..\..\src\option.cpp" />
@@ -158,6 +159,7 @@
     <ClInclude Include="..\..\src\command.h" />
     <ClInclude Include="..\..\src\gpu.h" />
     <ClInclude Include="..\..\src\layer\convolution_vulkan.h" />
+    <ClInclude Include="..\..\src\layer\image_conv_vulkan.h" />
     <ClInclude Include="..\..\src\layer\relu_100_vulkan.h" />
     <ClInclude Include="..\..\src\layer\resize_vulkan.h" />
     <ClInclude Include="..\..\src\option.h" />

@@ -6,6 +6,7 @@
 #include "layer/divide_vulkan.h"
 #include "layer/resize_vulkan.h"
 #include "layer/convolution_vulkan.h"
+#include "layer/image_conv_vulkan.h"
 
 using namespace iml::train;
 
@@ -125,7 +126,27 @@ void upload_weights(VulkanDevice* vkdev, Convolution_vulkan& conv) {
 	cmd.submit_and_wait();
 }
 
-void conv_forward(VulkanDevice* vkdev, Option& opt, cv::Mat& mat) {
+void upload_image_conv_weights(
+	VulkanDevice* vkdev, 
+	ImageConv_vulkan& conv, 
+	std::vector<float>& weight, 
+	std::vector<float>& bias) 
+{
+	VkTransfer cmd(vkdev);
+
+	// create gpu device allocator if null
+	VkAllocator* weight_vkallocator = new VkWeightBufferAllocator(vkdev);
+	VkAllocator* weight_staging_vkallocator = new VkWeightStagingBufferAllocator(vkdev);
+
+	cmd.weight_vkallocator = weight_vkallocator;
+	cmd.staging_vkallocator = weight_staging_vkallocator;
+
+	conv.upload_model(cmd, weight, bias);			//upload weight
+
+	cmd.submit_and_wait();
+}
+
+void convolution_forward(VulkanDevice* vkdev, Option& opt, cv::Mat& mat) {
 
 	Convolution_vulkan conv;
 	int ret = conv.create_pipeline(vkdev);
@@ -168,6 +189,44 @@ void conv_forward(VulkanDevice* vkdev, Option& opt, cv::Mat& mat) {
 	vkmat.discard_staging_buffer();
 }
 
+void image_conv_forward(VulkanDevice* vkdev, Option& opt, cv::Mat& mat) {
+
+	ImageConv_vulkan conv;
+	int ret = conv.create_pipeline(vkdev);
+	if (ret) {
+		std::cout << "create_pipeline err:" << ret << std::endl;
+		return;
+	}
+
+	upload_image_conv_weights(vkdev, conv);
+
+	VkCompute cmd(vkdev);
+	VkMat vkmat;
+	vkmat.create_like(mat, opt.blob_vkallocator, opt.staging_vkallocator);
+	vkmat.prepare_staging_buffer();
+	vkmat.upload(mat);	//将cv::mat内容拷贝到vkmat.mapped_ptr()
+	cmd.record_upload(vkmat);
+
+	VkMat vkout;
+
+	ret = conv.forward(vkmat, vkout, cmd);
+	if (ret) {
+		std::cout << "conv forward_inplace failed" << std::endl;
+		return;
+	}
+
+	vkout.prepare_staging_buffer();
+	cmd.record_download(vkout);
+
+	cmd.submit_and_wait();		//等待gpu执行完成
+	cmd.reset();
+
+	std::vector<float> out;
+	vkout.download(out);
+
+	vkmat.discard_staging_buffer();
+}
+
 
 void gpu_extract(VulkanDevice* vkdev, cv::Mat& mat) {
 	std::cout << "start run vulkan" << std::endl;
@@ -187,9 +246,10 @@ void gpu_extract(VulkanDevice* vkdev, cv::Mat& mat) {
 		opt.staging_vkallocator = local_staging_allocator;
 	}
 
-	divide_forward(vkdev, opt, mat);
+	//divide_forward(vkdev, opt, mat);
 	//resize_forward(vkdev, opt, mat);
-	//conv_forward(vkdev, opt, mat);
+	//convolution_forward(vkdev, opt, mat);
+	image_conv_forward(vkdev, opt, mat);
 
 
 	if (local_blob_allocator)

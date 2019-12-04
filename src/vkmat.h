@@ -71,6 +71,7 @@ public:
     // copy
     void upload(const cv::Mat& m);
     void download(cv::Mat& m) const;
+	void download(std::vector<float>& m) const;
 
     // mapped
     //cv::Mat mapped() const;
@@ -518,6 +519,11 @@ inline void VkMat::upload(const cv::Mat& m)
 inline void VkMat::download(cv::Mat& m) const
 {
     memcpy(m.data, mapped_ptr(), total() * elemsize);
+}
+
+inline void VkMat::download(std::vector<float>& m) const
+{
+	memcpy(m.data, mapped_ptr(), total() * elemsize);
 }
 
 inline void* VkMat::mapped_ptr() const
