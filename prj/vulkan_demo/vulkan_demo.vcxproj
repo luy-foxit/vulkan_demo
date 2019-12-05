@@ -142,30 +142,31 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\allocator.cpp" />
-    <ClCompile Include="..\..\src\command.cpp" />
-    <ClCompile Include="..\..\src\gpu.cpp" />
+    <ClCompile Include="..\..\src\common.cpp" />
     <ClCompile Include="..\..\src\layer\convolution_vulkan.cpp" />
     <ClCompile Include="..\..\src\layer\divide_vulkan.cpp" />
     <ClCompile Include="..\..\src\layer\image_conv_vulkan.cpp" />
     <ClCompile Include="..\..\src\layer\resize_vulkan.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
-    <ClCompile Include="..\..\src\option.cpp" />
-    <ClCompile Include="..\..\src\pipeline.cpp" />
-    <ClCompile Include="..\..\src\vulkan_device.cpp" />
+    <ClCompile Include="..\..\src\vulkan\allocator.cpp" />
+    <ClCompile Include="..\..\src\vulkan\command.cpp" />
+    <ClCompile Include="..\..\src\vulkan\gpu.cpp" />
+    <ClCompile Include="..\..\src\vulkan\option.cpp" />
+    <ClCompile Include="..\..\src\vulkan\pipeline.cpp" />
+    <ClCompile Include="..\..\src\vulkan\vulkan_device.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\allocator.h" />
-    <ClInclude Include="..\..\src\command.h" />
-    <ClInclude Include="..\..\src\gpu.h" />
+    <ClInclude Include="..\..\src\common.h" />
     <ClInclude Include="..\..\src\layer\convolution_vulkan.h" />
     <ClInclude Include="..\..\src\layer\image_conv_vulkan.h" />
-    <ClInclude Include="..\..\src\layer\relu_100_vulkan.h" />
     <ClInclude Include="..\..\src\layer\resize_vulkan.h" />
-    <ClInclude Include="..\..\src\option.h" />
-    <ClInclude Include="..\..\src\vkmat.h" />
-    <ClInclude Include="..\..\src\pipeline.h" />
-    <ClInclude Include="..\..\src\vulkan_device.h" />
+    <ClInclude Include="..\..\src\vulkan\allocator.h" />
+    <ClInclude Include="..\..\src\vulkan\command.h" />
+    <ClInclude Include="..\..\src\vulkan\gpu.h" />
+    <ClInclude Include="..\..\src\vulkan\option.h" />
+    <ClInclude Include="..\..\src\vulkan\pipeline.h" />
+    <ClInclude Include="..\..\src\vulkan\vkmat.h" />
+    <ClInclude Include="..\..\src\vulkan\vulkan_device.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

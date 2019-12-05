@@ -1,12 +1,13 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
-#include "gpu.h"
-#include "vkmat.h"
-#include "option.h"
+#include "vulkan/gpu.h"
+#include "vulkan/vkmat.h"
+#include "vulkan/option.h"
 #include "layer/divide_vulkan.h"
 #include "layer/resize_vulkan.h"
 #include "layer/convolution_vulkan.h"
 #include "layer/image_conv_vulkan.h"
+#include "common.h"
 
 using namespace iml::train;
 
@@ -189,7 +190,7 @@ void convolution_forward(VulkanDevice* vkdev, Option& opt, cv::Mat& mat) {
 	vkmat.discard_staging_buffer();
 }
 
-void image_conv_forward(VulkanDevice* vkdev, Option& opt, cv::Mat& mat) {
+void image_conv_forward(VulkanDevice* vkdev, Option& opt, cv::Mat& mat, std::vector<float>& weight, std::vector<float>& bias) {
 
 	ImageConv_vulkan conv;
 	int ret = conv.create_pipeline(vkdev);
@@ -198,7 +199,7 @@ void image_conv_forward(VulkanDevice* vkdev, Option& opt, cv::Mat& mat) {
 		return;
 	}
 
-	upload_image_conv_weights(vkdev, conv);
+	upload_image_conv_weights(vkdev, conv, weight, bias);
 
 	VkCompute cmd(vkdev);
 	VkMat vkmat;
@@ -209,7 +210,7 @@ void image_conv_forward(VulkanDevice* vkdev, Option& opt, cv::Mat& mat) {
 
 	VkMat vkout;
 
-	ret = conv.forward(vkmat, vkout, cmd);
+	ret = conv.forward(vkmat, vkout, cmd, opt);
 	if (ret) {
 		std::cout << "conv forward_inplace failed" << std::endl;
 		return;
@@ -249,7 +250,15 @@ void gpu_extract(VulkanDevice* vkdev, cv::Mat& mat) {
 	//divide_forward(vkdev, opt, mat);
 	//resize_forward(vkdev, opt, mat);
 	//convolution_forward(vkdev, opt, mat);
-	image_conv_forward(vkdev, opt, mat);
+
+	int input_num = 3;
+	int output_num = 8;
+	int kernel_size = 3;
+	std::vector<float> weight;
+	std::vector<float> bias;
+	random_weight(input_num, output_num, kernel_size, weight);
+	random_bias(output_num, bias);
+	image_conv_forward(vkdev, opt, mat, weight, bias);
 
 
 	if (local_blob_allocator)

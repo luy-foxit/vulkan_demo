@@ -19,27 +19,15 @@
     <Filter Include="头文件\layer">
       <UniqueIdentifier>{b6afce26-ba48-4a1a-bcb8-6a771473be16}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\vulkan">
+      <UniqueIdentifier>{320e0fca-a45d-4217-a195-7ddb3a7f6d53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\vulkan">
+      <UniqueIdentifier>{fc58a274-90fb-462a-b90e-de0f777b1794}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\gpu.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\main.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\vulkan_device.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\allocator.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\pipeline.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\command.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\option.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\layer\resize_vulkan.cpp">
@@ -54,32 +42,29 @@
     <ClCompile Include="..\..\src\layer\image_conv_vulkan.cpp">
       <Filter>源文件\layer</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\allocator.cpp">
+      <Filter>源文件\vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\command.cpp">
+      <Filter>源文件\vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\gpu.cpp">
+      <Filter>源文件\vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\option.cpp">
+      <Filter>源文件\vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\pipeline.cpp">
+      <Filter>源文件\vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan\vulkan_device.cpp">
+      <Filter>源文件\vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\gpu.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\vulkan_device.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\allocator.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\layer\relu_100_vulkan.h">
-      <Filter>头文件\layer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\pipeline.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\command.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\vkmat.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\option.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\layer\resize_vulkan.h">
       <Filter>头文件\layer</Filter>
     </ClInclude>
@@ -88,6 +73,30 @@
     </ClInclude>
     <ClInclude Include="..\..\src\layer\image_conv_vulkan.h">
       <Filter>头文件\layer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\allocator.h">
+      <Filter>头文件\vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\command.h">
+      <Filter>头文件\vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\gpu.h">
+      <Filter>头文件\vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\option.h">
+      <Filter>头文件\vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\pipeline.h">
+      <Filter>头文件\vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\vkmat.h">
+      <Filter>头文件\vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\vulkan\vulkan_device.h">
+      <Filter>头文件\vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\common.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

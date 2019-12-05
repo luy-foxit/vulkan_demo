@@ -1,5 +1,6 @@
 #include "image_conv_vulkan.h"
 
+
 namespace iml {
 namespace train {
 
@@ -59,9 +60,11 @@ namespace train {
 		return 0;
 	}
 
-	int ImageConv_vulkan::forward(VkMat& bottom_blob, VkMat& top_blob, VkCompute& cmd) const
+	int ImageConv_vulkan::forward(VkMat& bottom_blob, VkMat& top_blob, VkCompute& cmd, Option& opt) const
 	{
-		top_blob.create();
+		int elemsize = sizeof(float);
+		int elempack = 1;
+		top_blob.create(bottom_blob.w, bottom_blob.h, 8, elemsize, elempack, opt.blob_vkallocator, opt.staging_vkallocator);
 
 		// binding in glsl
 		std::vector<VkMat> bindings(4);
