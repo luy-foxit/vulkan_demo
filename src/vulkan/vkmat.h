@@ -523,6 +523,7 @@ inline void VkMat::download(cv::Mat& m) const
 
 inline void VkMat::download(std::vector<float>& m) const
 {
+	m.resize(total());
 	memcpy(&m[0], mapped_ptr(), total() * elemsize);
 }
 

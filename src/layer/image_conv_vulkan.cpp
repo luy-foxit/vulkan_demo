@@ -14,12 +14,12 @@ namespace train {
 		pipeline_convolution = 0;
 	}
 
-	int ImageConv_vulkan::create_pipeline(const VulkanDevice* vkdev)
+	int ImageConv_vulkan::create_pipeline(const VulkanDevice* vkdev, int kernel_size)
 	{
 		//constant_id ÊýÁ¿
 		std::vector<vk_specialization_type> specializations(7);
-		specializations[0].i = 3;		//kernel_w in glsl
-		specializations[1].i = 3;		//kernel_h in glsl
+		specializations[0].i = kernel_size;		//kernel_w in glsl
+		specializations[1].i = kernel_size;		//kernel_h in glsl
 		specializations[2].i = 1;		//dilation_w in glsl
 		specializations[3].i = 1;		//dilation_h in glsl
 		specializations[4].i = 1;		//stride_w in glsl
@@ -60,11 +60,16 @@ namespace train {
 		return 0;
 	}
 
-	int ImageConv_vulkan::forward(VkMat& bottom_blob, VkMat& top_blob, VkCompute& cmd, Option& opt) const
+	int ImageConv_vulkan::forward(
+		VkMat& bottom_blob,
+		VkMat& top_blob,
+		VkCompute& cmd,
+		Option& opt,
+		int output_num) const
 	{
 		int elemsize = sizeof(float);
 		int elempack = 1;
-		top_blob.create(bottom_blob.w, bottom_blob.h, 8, elemsize, elempack, opt.blob_vkallocator, opt.staging_vkallocator);
+		top_blob.create(bottom_blob.w, bottom_blob.h, output_num, elemsize, elempack, opt.blob_vkallocator, opt.staging_vkallocator);
 
 		// binding in glsl
 		std::vector<VkMat> bindings(4);

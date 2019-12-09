@@ -16,11 +16,16 @@ namespace train {
 		ImageConv_vulkan();
 		~ImageConv_vulkan();
 
-		int create_pipeline(const VulkanDevice* vkdev);
+		int create_pipeline(const VulkanDevice* vkdev, int kernel_size);
 		int destroy_pipeline();
 
 		int upload_model(VkTransfer& cmd, std::vector<float>& weight_data, std::vector<float>& bias_data);
-		int forward(VkMat& bottom_blob, VkMat& top_blob, VkCompute& cmd, Option& opt) const;
+		int forward(
+			VkMat& bottom_blob,
+			VkMat& top_blob,
+			VkCompute& cmd,
+			Option& opt,
+			int output_num) const;
 
 	private:
 		Pipeline* pipeline_convolution;

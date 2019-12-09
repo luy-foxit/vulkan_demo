@@ -15,7 +15,7 @@ namespace iml {
 				unsigned int seed = static_cast<unsigned int>(i + start);
 				static std::default_random_engine e(seed);
 				static std::uniform_real_distribution<double> u(min, max);
-				matrix[i] = static_cast<float>(static_cast<int>(u(e)));
+				matrix[i] = static_cast<float>(static_cast<int>(u(e))) / 255.0f;
 			}
 		}
 

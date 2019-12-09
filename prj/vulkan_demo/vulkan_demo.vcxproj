@@ -133,18 +133,22 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(INTEL_OPENVINO_DIR)\opencv\include;C:\VulkanSDK\1.1.114.0\Include;$(SolutionDir)..\src\layer\shader_include;C:\Program Files (x86)\Visual Leak Detector\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>$(INTEL_OPENVINO_DIR)\opencv\lib\opencv_world410.lib;$(INTEL_OPENVINO_DIR)\opencv\lib\opencv_pvl410.lib;C:\VulkanSDK\1.1.114.0\Lib\vulkan-1.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\common.cpp" />
+    <ClCompile Include="..\..\src\image_conv_test.cpp" />
     <ClCompile Include="..\..\src\layer\convolution_vulkan.cpp" />
     <ClCompile Include="..\..\src\layer\divide_vulkan.cpp" />
+    <ClCompile Include="..\..\src\layer\image_conv.cpp" />
     <ClCompile Include="..\..\src\layer\image_conv_vulkan.cpp" />
     <ClCompile Include="..\..\src\layer\resize_vulkan.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
@@ -154,10 +158,12 @@
     <ClCompile Include="..\..\src\vulkan\option.cpp" />
     <ClCompile Include="..\..\src\vulkan\pipeline.cpp" />
     <ClCompile Include="..\..\src\vulkan\vulkan_device.cpp" />
+    <ClCompile Include="..\..\src\vulkan_test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\common.h" />
     <ClInclude Include="..\..\src\layer\convolution_vulkan.h" />
+    <ClInclude Include="..\..\src\layer\image_conv.h" />
     <ClInclude Include="..\..\src\layer\image_conv_vulkan.h" />
     <ClInclude Include="..\..\src\layer\resize_vulkan.h" />
     <ClInclude Include="..\..\src\vulkan\allocator.h" />

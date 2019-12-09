@@ -63,6 +63,15 @@
     <ClCompile Include="..\..\src\common.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\layer\image_conv.cpp">
+      <Filter>源文件\layer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\image_conv_test.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\vulkan_test.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\layer\resize_vulkan.h">
@@ -97,6 +106,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\common.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\layer\image_conv.h">
+      <Filter>头文件\layer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
