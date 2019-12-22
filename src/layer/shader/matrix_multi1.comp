@@ -1,0 +1,34 @@
+#version 450
+
+layout (local_size_x_id = 233) in;
+layout (local_size_y_id = 234) in;
+layout (local_size_z_id = 235) in;
+
+layout (binding = 0) readonly buffer left_blob { float left_blob_data[]; };
+layout (binding = 2) readonly buffer right_blob { float right_blob_data[]; };
+layout (binding = 1) writeonly buffer top_blob { float top_blob_data[]; };
+
+layout (push_constant) uniform parameter
+{
+    int m;
+    int n;
+    int k;
+} p;
+
+void main()
+{
+    int gx = int(gl_GlobalInvocationID.x);
+    int gy = int(gl_GlobalInvocationID.y);
+    int gz = int(gl_GlobalInvocationID.z);
+
+    if (gx >= p.n || gy >= p.m || gz >= 1)
+        return;
+
+    float sum = 0.f;
+    for (int x = 0; x < p.k; x++)
+    {
+        sum += left_blob_data[gy * p.k + x] * right_blob_data[x * p.n + gx];
+    }
+
+    top_blob_data[gy * p.n + gx] = sum;
+}

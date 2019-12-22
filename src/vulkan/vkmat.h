@@ -70,6 +70,7 @@ public:
 
     // copy
     void upload(const cv::Mat& m);
+	void upload(const std::vector<float>& m);
     void download(cv::Mat& m) const;
 	void download(std::vector<float>& m) const;
 
@@ -514,6 +515,11 @@ inline void VkMat::discard_staging_buffer()
 inline void VkMat::upload(const cv::Mat& m)
 {
     memcpy(mapped_ptr(), m.data, m.total() * m.elemSize());
+}
+
+inline void VkMat::upload(const std::vector<float>& m)
+{
+    memcpy(mapped_ptr(), &m[0], m.size() * sizeof(float));
 }
 
 inline void VkMat::download(cv::Mat& m) const

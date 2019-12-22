@@ -16,12 +16,21 @@ namespace train {
 		MatrixMulti_vulkan();
 		~MatrixMulti_vulkan();
 
-		void forward(std::vector<float>& left,
-			std::vector<float>& right,
-			std::vector<float>& out,
+		int create_pipeline(const VulkanDevice* vkdev);
+		void destroy_pipeline();
+
+		void forward(
+			VkMat& left_blob,
+			VkMat& right_blob,
+			VkMat& top_blob,
+			VkCompute& cmd,
+			Option& opt,
 			int m, 
 			int k,
 			int n);
+
+	private:
+		Pipeline* pipeline_mm;
 	};
 
 }

@@ -123,7 +123,7 @@
       <Filter>头文件\layer</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\layer\matrix_multi_vulkan.h">
-      <Filter>头文件</Filter>
+      <Filter>头文件\layer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
