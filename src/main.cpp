@@ -17,6 +17,8 @@ void resize_forward(VulkanDevice* vkdev, Option& opt, cv::Mat& mat);
 void convolution_forward(VulkanDevice* vkdev, Option& opt, cv::Mat& mat);
 
 void image_conv_test(VulkanDevice* vkdev, Option& opt, cv::Mat& mat);
+void matrix_multi_test(VulkanDevice* vkdev, Option& opt);
+
 
 void gpu_extract(VulkanDevice* vkdev, cv::Mat& mat) {
 	std::cout << "start run vulkan" << std::endl;
@@ -40,7 +42,8 @@ void gpu_extract(VulkanDevice* vkdev, cv::Mat& mat) {
 	//resize_forward(vkdev, opt, mat);
 	//convolution_forward(vkdev, opt, mat);
 
-	image_conv_test(vkdev, opt, mat);
+	//image_conv_test(vkdev, opt, mat);
+	matrix_multi_test(vkdev, opt);
 
 	if (local_blob_allocator)
 	{

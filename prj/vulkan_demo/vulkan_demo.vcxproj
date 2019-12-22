@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -150,8 +150,11 @@
     <ClCompile Include="..\..\src\layer\divide_vulkan.cpp" />
     <ClCompile Include="..\..\src\layer\image_conv.cpp" />
     <ClCompile Include="..\..\src\layer\image_conv_vulkan.cpp" />
+    <ClCompile Include="..\..\src\layer\matrix_multi.cpp" />
+    <ClCompile Include="..\..\src\layer\matrix_multi_vulkan.cpp" />
     <ClCompile Include="..\..\src\layer\resize_vulkan.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
+    <ClCompile Include="..\..\src\matrix_multi_test.cpp" />
     <ClCompile Include="..\..\src\vulkan\allocator.cpp" />
     <ClCompile Include="..\..\src\vulkan\command.cpp" />
     <ClCompile Include="..\..\src\vulkan\gpu.cpp" />
@@ -165,6 +168,8 @@
     <ClInclude Include="..\..\src\layer\convolution_vulkan.h" />
     <ClInclude Include="..\..\src\layer\image_conv.h" />
     <ClInclude Include="..\..\src\layer\image_conv_vulkan.h" />
+    <ClInclude Include="..\..\src\layer\matrix_multi.h" />
+    <ClInclude Include="..\..\src\layer\matrix_multi_vulkan.h" />
     <ClInclude Include="..\..\src\layer\resize_vulkan.h" />
     <ClInclude Include="..\..\src\vulkan\allocator.h" />
     <ClInclude Include="..\..\src\vulkan\command.h" />

@@ -72,6 +72,15 @@
     <ClCompile Include="..\..\src\vulkan_test.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\layer\matrix_multi.cpp">
+      <Filter>源文件\layer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\matrix_multi_test.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\layer\matrix_multi_vulkan.cpp">
+      <Filter>源文件\layer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\layer\resize_vulkan.h">
@@ -109,6 +118,12 @@
     </ClInclude>
     <ClInclude Include="..\..\src\layer\image_conv.h">
       <Filter>头文件\layer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\layer\matrix_multi.h">
+      <Filter>头文件\layer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\layer\matrix_multi_vulkan.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
