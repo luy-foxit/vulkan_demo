@@ -66,10 +66,12 @@ include_directories(${SHADER_HEX_FOLDER})
 
 file(GLOB srcs "src/*.cpp")
 file(GLOB layer_srcs "src/layer/*.cpp")
+file(GLOB vulkan_srcs "src/vulkan/*.cpp")
 ADD_EXECUTABLE(
     vulkan_demo
     ${srcs}
     ${layer_srcs}
+    ${vulkan_srcs}
     )
 
 TARGET_LINK_LIBRARIES(
